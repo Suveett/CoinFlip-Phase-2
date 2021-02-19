@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>CoinFlip</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+    <script type="text/javascript" src="./web3.min.js"></script>
+    <script type="text/javascript" src="./abi.js"></script>
+    <script type="text/javascript" src="./main.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+  </head>
+  <body>
+    <div class="jumbotron jumbotron-fluid">
+      <div class="container">
+        <h1 class="display-4">CoinFlip Dapp - </h1>
+        <h2> Web3's Most Happening "Fully Decentralized" Betting App</h2>
+        <center>
+          <div class="input-group mb-3">
+            <input type = "text" class = "form-control" id = "fund_contract" placeholder = "Enter amount to fund in ETH"/>
+          </div>
+            <button id = "fund_contract_button">Fund Contract</button>
+            <button id = "withdraw_funds"> Withdraw Funds </button>
+
+        </center>
+        <br><br>
+        <div class="col-3" id='gameInfo'>
+          <small>Player address:</small>
+          <small><span id="playerAddress"></span></small>
+        </div>
+        <br>
+        <img src = "data:image/jpeg;base64,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" alt = "Ether Image">
+        <br><br><br>
+        <div>
+
+          <h3><span id = jackpot_output></span></h3>
+          <button id = "get_balance" class="btn btn-primary">Get Contract Balance</button>
+
+        </div>
+
+
+          <br><br><br>
+
+
+        <p class="lead">Win Double of What You Bet in Ether! </p>
+        <br><br>
+        <h3 id="events"></h3>
+
+      </div>
+    </div>
+
+
+    <div class="container">
+      <div>
+        <h2>Now time to Bet</h2>
+
+
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" id="bet_input" placeholder="Enter amount in ether less than Contract Balance"/>
+        </div>
+
+        <button type="button" id="flip_button" class="btn btn-primary">Great Chance of Winning, Bet Now !</button>
+
+
+      </div>
+    </div>
+
+    <br>
+    <div class="jumbotron jumbotron-fluid">
+      <div class = "container">
+
+        <img src ="https://media2.giphy.com/media/g7GDZf4NXsIpi/giphy.gif?cid=ecf05e477r1ngzmvq4si8tucvi9wizdx3acymzcielzg3sis&rid=giphy.gif , alt = "Money Door"/>
+      </div>
+    </div>
+
+    <div class = "container">
+        <h6>Copyright : 2021/07012021/Suveett Kalra (Su.Kal Crypto)</h3>
+    </div>
+
+
+
+  </body>
+</html>
