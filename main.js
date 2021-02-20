@@ -31,7 +31,7 @@ contractInstance.once('LogNewProvableQuery',
   jQuery("#events").text(`User ${event.returnValues.player} is waiting for the flip result`);
 });
 
-contractInstance.once('BetPlaced',
+contractInstance.once('FlipResult',
 {
   filter: { player: await getPlayerAddress() },
   fromBlock: 'latest'
