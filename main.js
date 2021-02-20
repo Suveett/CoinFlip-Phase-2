@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-const contractAddress = "0xBd8Faa10595d86c39a89AD0e21041ee0E0cF0202";
+const contractAddress = "";
 
 $(document).ready(async function(){
   contractInstance = new web3.eth.Contract(abi,contractAddress);
