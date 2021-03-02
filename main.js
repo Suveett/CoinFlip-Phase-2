@@ -76,10 +76,10 @@ async function getPlayerAddress() {
         })
         .on("receipt", function(receipt){
             console.log(receipt);
-            if(receipt.events.betPlaced.returnValues[2] === false){
+            if(receipt.events.FlipResult.returnValues.bool === false){
                 alert("You lost " + bet + " Ether!");
             }
-            else if(receipt.events.betPlaced.returnValues[2] === true){
+            else if(receipt.events.FlipResult.returnValues.bool === true){
                 alert("You won " + bet + " Ether!");
             }
         })
