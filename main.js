@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-const contractAddress = "";
+const contractAddress = "0x9222aBBFB934FD8f0e4742f4966D2BA6d5ABF667";
 
 $(document).ready(async function(){
   contractInstance = new web3.eth.Contract(abi,contractAddress);
@@ -37,7 +37,7 @@ contractInstance.once('FlipResult',
   fromBlock: 'latest'
 }, (error, event) => {
   if(error) throw("Error fetching events");
-  jQuery("#events").text(`User ${event.returnValues.player} won: ${event.returnValues.won}`);
+  jQuery("#events").text(`User ${event.returnValues.player} won: ${event.returnValues.amountWon}`);
 });
 });
 
