@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-const contractAddress = "0x9222aBBFB934FD8f0e4742f4966D2BA6d5ABF667";
+const contractAddress = "0xD447a5774877126474A903F5947A5Ffd756a5251";
 
 $(document).ready(async function(){
   contractInstance = new web3.eth.Contract(abi,contractAddress);
@@ -33,7 +33,7 @@ contractInstance.once('LogNewProvableQuery',
 
 contractInstance.once('FlipResult',
 {
-  filter: { player: await getPlayerAddress() },
+  filter: { player : await getPlayerAddress() },
   fromBlock: 'latest'
 }, (error, event) => {
   if(error) throw("Error fetching events");
