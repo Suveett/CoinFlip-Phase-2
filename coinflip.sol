@@ -1,4 +1,4 @@
-import "./provableAPI.sol";
+import "./ethereum-api-master/provableAPI.sol";
 import { SafeMath } from "./SafeMath.sol";
 pragma solidity 0.5.12;
 
@@ -8,8 +8,8 @@ contract Coinflip is usingProvable{
 
   //Events to listen for :
   event RandomNumberGenerated(uint randomNumber);
-  event LogNewProvableQuery(address indexedPlayer);
-  event FlipResult(address user, uint amountWon, bool won);
+  event LogNewProvableQuery(address indexed player);
+  event FlipResult(address indexed player, uint amountWon, bool won);
   event ContractFunded(address contractOwner, uint amount);
 
   // Constructors and Modifiers :
@@ -100,11 +100,11 @@ contract Coinflip is usingProvable{
         address player = temps[_queryId].playerAddress;
         if(_randomNumber == 1){
           playersByAddress[player].playerBalance = playersByAddress[player].playerBalance.add(playersByAddress[player].betAmount.mul(2));
-          emit FlipResult(player, playersByAddress[player].betAmount, true);
+          emit FlipResult(player, playersByAddress[player].betAmount.mul(2), true);
         }
         else {
           contractBalance = contractBalance.add(playersByAddress[player].betAmount);
-          emit FlipResult(player,playersByAddress[player].betAmount, false );
+          emit FlipResult(player,0, false );
         }
 
         delete(temps[_queryId]);
@@ -137,6 +137,8 @@ contract Coinflip is usingProvable{
     }
 
     function _isPlaying(address _player) public view returns(bool){
-      return playersByAddress[msg.sender].inGame;
+       _player = msg.sender;
+      return playersByAddress[_player].inGame;
     }
 }
+
