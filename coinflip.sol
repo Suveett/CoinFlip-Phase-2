@@ -121,10 +121,11 @@ contract Coinflip is usingProvable{
 
     // withdraw all funds possible only though contractOwner address;
     function withdrawAll() public onlyOwner returns(uint){
-        require(playersByAddress[msg.sender].playerBalance > 0, "You are not the Owner");
-        msg.sender.transfer(address(this).balance);
-        assert(address(this).balance == 0);
-        return address(this).balance;
+        uint toTransfer = address(this).balance;
+        address(this).balance = 0;
+        require(playersByAddress[msg.sender].playerBalance > 0);
+        msg.sender.transfer(toTransfer);
+        return toTransfer;
     }
 
 
