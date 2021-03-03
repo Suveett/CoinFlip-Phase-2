@@ -14,7 +14,8 @@ $(document).ready(async function(){
     $("#flip_button").click(flipCoin);
     $("#get_balance").click(fetchAndDisplay);
     $("#fund_contract_button").click(fundContract);
-    $("#withdraw_funds").click(withdrawAll);
+    $("#withdraw_funds").click(withdrawFunds);
+    $("#withdraw_all_funds").click(withdrawAll);
 
 
 
@@ -108,12 +109,15 @@ async function getPlayerAddress() {
           console.log(confirmationNr);
         })
         .on("receipt", function(receipt){
-          contractInstance.methods.getBalance().call().then(function(res){
-          $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[1], "ether") + "Ether");
+          console.log(receipt);
         })
       };
 
 
+      async function withdrawFunds(){
+        contractInstance.methods.withdrawFunds().send({from : await getPlayerAddress()});
+      };
+
       async function withdrawAll(){
         contractInstance.methods.withdrawAll().send({from : await getPlayerAddress()});
-      };
+      }
