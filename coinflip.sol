@@ -11,7 +11,7 @@ contract Coinflip is usingProvable{
   event LogNewProvableQuery(address indexed player);
   event FlipResult(address indexed player, uint amountWon, bool won);
   event ContractFunded(address contractOwner, uint amount);
-
+  event BalanceUpdated(address user, uint transferredAmt, uint newContractBalance )
   // Constructors and Modifiers :
   constructor() public {
     provable_setProof(proofType_Ledger);
@@ -129,6 +129,17 @@ contract Coinflip is usingProvable{
     }
 
 
+    //Withdraw Funds Deposited/ Won from the contract (possible for all Players of the bettingDapp Game)
+    function withdrawFunds() public {
+      require(msg.sender != contractOwner, "You are Contract Owner, use withdrawAll function");
+      require(playersByAddress[msg.sender].playerBalance > 0);
+      require(!_isPlaying(msg.sender));
+
+      uint amt = playersByAddress[msg.sender].playerBalance;
+      delete(playersByAddress[msg.sender]);
+      msg.sender.transfer(amt);
+      emit BalanceUpdated(msg.sender, amt, contractBalance);
+    }
 
     function fundContract() public payable onlyOwner returns(uint) {
 
