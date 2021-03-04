@@ -1,4 +1,4 @@
-import "./ethereum-api-master/provableAPI.sol";
+import "./provableAPI.sol";
 import { SafeMath } from "./SafeMath.sol";
 pragma solidity 0.5.12;
 
@@ -12,6 +12,8 @@ contract Coinflip is usingProvable{
   event FlipResult(address indexed player, uint amountWon, bool won);
   event ContractFunded(address contractOwner, uint amount);
   event BalanceUpdated(address user, uint transferredAmt, uint newContractBalance )
+
+
   // Constructors and Modifiers :
   constructor() public {
     provable_setProof(proofType_Ledger);
@@ -99,8 +101,8 @@ contract Coinflip is usingProvable{
       function _verifyResult(uint _randomNumber, bytes32 _queryId) internal {
         address player = temps[_queryId].playerAddress;
         if(_randomNumber == 1){
-          playersByAddress[player].playerBalance = playersByAddress[player].playerBalance.add(playersByAddress[player].betAmount.mul(2));
-          emit FlipResult(player, playersByAddress[player].betAmount.mul(2), true);
+          playersByAddress[player].playerBalance += playersByAddress[player].betAmt;
+          emit FlipResult(player, playersByAddress[player].betAmount, true);
         }
         else {
           contractBalance = contractBalance.add(playersByAddress[player].betAmount);
@@ -112,20 +114,25 @@ contract Coinflip is usingProvable{
         playersByAddress[player].inGame = false;
       }
 
-
+    // Get Contract instance's Balance:
     function getBalance() public view returns(address, uint, uint) {
       return(address(this), address(this).balance, contractBalance);
     }
 
+    // Get Player's Balance:
+    function getPlayerBalance() public view returns (uint) {
+        return playersByAddress[msg.sender].playerBalance;
+      }
 
 
     // withdraw all funds possible only though contractOwner address;
-    function withdrawAll() public onlyOwner returns(uint){
+    function withdrawAll() internal onlyOwner returns(uint){
         uint toTransfer = address(this).balance;
         address(this).balance = 0;
         require(playersByAddress[msg.sender].playerBalance > 0);
         msg.sender.transfer(toTransfer);
         return toTransfer;
+        emit BalanceUpdated(msg.sender, toTransfer, contractBalance);
     }
 
 
@@ -141,16 +148,21 @@ contract Coinflip is usingProvable{
       emit BalanceUpdated(msg.sender, amt, contractBalance);
     }
 
-    function fundContract() public payable onlyOwner returns(uint) {
+
+
+
+    //Only possible for the Owner of the Contract
+    function fundContract() internal payable onlyOwner returns(uint) {
 
         require(msg.value != 0);
         emit ContractFunded(msg.sender, msg.value);
         return msg.value;
     }
 
+
+
     function _isPlaying(address _player) public view returns(bool){
        _player = msg.sender;
       return playersByAddress[_player].inGame;
     }
 }
-
