@@ -11,7 +11,7 @@ contract Coinflip is usingProvable{
   event LogNewProvableQuery(address indexed player);
   event FlipResult(address indexed player, uint amountWon, bool won);
   event ContractFunded(address contractOwner, uint amount);
-  event BalanceUpdated(address user, uint transferredAmt, uint newContractBalance )
+  event BalanceUpdated(address user, uint transferredAmt, uint newContractBalance);
 
 
   // Constructors and Modifiers :
@@ -34,7 +34,7 @@ contract Coinflip is usingProvable{
 
   //addresses and other such state Variables:
   address public contractOwner;
-  uint public contractBalance;
+  uint private contractBalance;
   address public contractAddress;
   uint private constant NUM_RANDOM_BYTES_REQUESTED = 1;
 
@@ -55,7 +55,7 @@ contract Coinflip is usingProvable{
 
     //Flip the Coin and check whether user won or lost;
     function flipCoin() public payable costs(0.01 ether) {
-        require(address(this).balance >= msg.value, "The contract doesnt have enough balance to play right now. Come Back later");
+        require(getBalance() >= msg.value, "The contract doesnt have enough balance to play right now. Come Back later");
         require(_isPlaying(msg.sender) == false, "The User currently is in Game");
 
         playersByAddress[msg.sender].playerAddress = msg.sender;
@@ -101,7 +101,7 @@ contract Coinflip is usingProvable{
       function _verifyResult(uint _randomNumber, bytes32 _queryId) internal {
         address player = temps[_queryId].playerAddress;
         if(_randomNumber == 1){
-          playersByAddress[player].playerBalance += playersByAddress[player].betAmt;
+          playersByAddress[player].playerBalance += playersByAddress[player].betAmount;
           emit FlipResult(player, playersByAddress[player].betAmount, true);
         }
         else {
@@ -114,9 +114,9 @@ contract Coinflip is usingProvable{
         playersByAddress[player].inGame = false;
       }
 
-    // Get Contract instance's Balance:
-    function getBalance() public view returns(address, uint, uint) {
-      return(address(this), address(this).balance, contractBalance);
+    // Get Contract's Balance:
+    function getBalance() internal view returns(uint) {
+      return contractBalance;
     }
 
     // Get Player's Balance:
@@ -127,12 +127,12 @@ contract Coinflip is usingProvable{
 
     // withdraw all funds possible only though contractOwner address;
     function withdrawAll() internal onlyOwner returns(uint){
-        uint toTransfer = address(this).balance;
-        address(this).balance = 0;
         require(playersByAddress[msg.sender].playerBalance > 0);
-        msg.sender.transfer(toTransfer);
-        return toTransfer;
-        emit BalanceUpdated(msg.sender, toTransfer, contractBalance);
+        uint amt = playersByAddress[msg.sender].playerBalance;
+        delete(playersByAddress[msg.sender]);
+        msg.sender.transfer(amt);
+        emit BalanceUpdated(msg.sender, amt, contractBalance);
+
     }
 
 
@@ -152,7 +152,7 @@ contract Coinflip is usingProvable{
 
 
     //Only possible for the Owner of the Contract
-    function fundContract() internal payable onlyOwner returns(uint) {
+    function fundContract() public payable onlyOwner returns(uint) {
 
         require(msg.value != 0);
         emit ContractFunded(msg.sender, msg.value);
