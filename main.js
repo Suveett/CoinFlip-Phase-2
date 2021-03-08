@@ -9,8 +9,6 @@ $(document).ready(async function(){
     console.log(contractInstance);
     console.log(`Use Contract address: ${contractInstance._address}`)
 
-
-
     $("#flip_button").click(async function(){
       await flipCoin()
     });
@@ -30,30 +28,30 @@ $(document).ready(async function(){
       await fetchAndDisplay();
     });
 
+    //EVENT LISTENERS
 
+    contractInstance.once('LogNewProvableQuery',
+    {
+      filter: { player: await getPlayerAddress() },
+      fromBlock: 'latest'
+    }, (error, event) => {
+      if(error) throw("Error fetching events");
+      jQuery("#events").text(`User ${event.returnValues.player} is waiting for the flip result`);
+    });
+
+    contractInstance.once('FlipResult',
+    {
+      filter: { player : await getPlayerAddress() },
+      fromBlock: 'latest'
+    }, (error, event) => {
+      if(error) throw("Error fetching events");
+      jQuery("#events").text(`User ${event.returnValues.player} won: ${event.returnValues.amountWon}`);
+    });
 
 });
 
-//EVENT LISTENERS
 
-contractInstance.once('LogNewProvableQuery',
-{
-  filter: { player: await getPlayerAddress() },
-  fromBlock: 'latest'
-}, (error, event) => {
-  if(error) throw("Error fetching events");
-  jQuery("#events").text(`User ${event.returnValues.player} is waiting for the flip result`);
-});
 
-contractInstance.once('FlipResult',
-{
-  filter: { player : await getPlayerAddress() },
-  fromBlock: 'latest'
-}, (error, event) => {
-  if(error) throw("Error fetching events");
-  jQuery("#events").text(`User ${event.returnValues.player} won: ${event.returnValues.amountWon}`);
-});
-});
 
 
 async function connectMetamask() {
