@@ -1,6 +1,6 @@
 var web3 = new Web3(Web3.givenProvider);
 var contractInstance;
-const contractAddress = "0xD447a5774877126474A903F5947A5Ffd756a5251";
+const contractAddress = "0xeA0114706ba05D9dd49DE48b88b969c4A51713c7";
 
 $(document).ready(async function(){
   contractInstance = new web3.eth.Contract(abi,contractAddress);
@@ -11,11 +11,24 @@ $(document).ready(async function(){
 
 
 
-    $("#flip_button").click(flipCoin);
-    $("#get_balance").click(fetchAndDisplay);
-    $("#fund_contract_button").click(fundContract);
-    $("#withdraw_funds").click(withdrawFunds);
-    $("#withdraw_all_funds").click(withdrawAll);
+    $("#flip_button").click(async function(){
+      await flipCoin()
+    });
+    $("#get_balance").click(async function() {
+      await fetchAndDisplay();
+    });
+    $("#fund_contract_button").click(async function(){
+      await fundContract();
+    });
+    $("#withdraw_funds").click(async function(){
+      await withdrawFunds();
+    });
+    $("#withdraw_all_funds").click(async function(){
+      await withdrawAll();
+    });
+    $("#get_balance").click(async function(){
+      await fetchAndDisplay();
+    });
 
 
 
@@ -68,7 +81,7 @@ async function getPlayerAddress() {
         var config = {
             value: web3.utils.toWei(bet,"ether")
         }
-        contractInstance.methods.flipCoin().send(config, {from : await getPlayerAddress()})
+        await contractInstance.methods.flipCoin().send(config, {from : await getPlayerAddress()})
         .on("transactionHash", function(hash){
             console.log(hash);
         })
@@ -89,7 +102,7 @@ async function getPlayerAddress() {
 
 
       async function fetchAndDisplay(){
-          contractInstance.methods.getBalance().call({from : await getPlayerAddress()}).then(function(res){
+          await contractInstance.methods.getBalance().call({from : await getPlayerAddress()}).then(function(res){
             $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[1], "ether") + "Ether");
 
           })
@@ -101,7 +114,7 @@ async function getPlayerAddress() {
         var config = {
           value : web3.utils.toWei(fund, "ether")
         }
-        contractInstance.methods.fundContract().send(config, {from : await getPlayerAddress()})
+        await contractInstance.methods.fundContract().send(config, {from : await getPlayerAddress()})
         .on("transactionHash", function(hash){
           console.log(hash);
         })
@@ -110,14 +123,16 @@ async function getPlayerAddress() {
         })
         .on("receipt", function(receipt){
           console.log(receipt);
+          //contractInstance.methods.getBalance().call().then(function(res){
+        //  $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[1], "ether") + "Ether");
         })
       };
 
 
       async function withdrawFunds(){
-        contractInstance.methods.withdrawFunds().send({from : await getPlayerAddress()});
+        await contractInstance.methods.withdrawFunds().send({from : await getPlayerAddress()});
       };
 
       async function withdrawAll(){
-        contractInstance.methods.withdrawAll().send({from : await getPlayerAddress()});
+        await contractInstance.methods.withdrawAll().send({from : await getPlayerAddress()});
       }
