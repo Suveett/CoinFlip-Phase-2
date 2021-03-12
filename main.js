@@ -123,8 +123,7 @@ $(document).ready(async function(){
         })
         .on("receipt", function(receipt){
           console.log(receipt);
-          //contractInstance.methods.getBalance().call().then(function(res){
-        //  $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[1], "ether") + "Ether");
+          
         })
       };
 
