@@ -6,7 +6,7 @@ const contractAddress = "0x1183647d5616A44db74CcAF35433E23367Fbe271";
 $(document).ready(async function(){
 
   window.ethereum.enable().then(function(accounts){
-    contractInstance = new web3.eth.Contract(abi,contractAddress, {from : accounts[0]});
+    contractInstance = new web3.eth.Contract(abi,contractAddress);
     console.log(contractInstance);
     console.log(`Use Contract address: ${contractInstance._address}`);
 
@@ -14,7 +14,6 @@ $(document).ready(async function(){
 
 
         $("#flip_button").click(async function(){
-          await connectMetamask();
           await flipCoin();
 
           //EVENT LISTENERS
@@ -42,15 +41,12 @@ $(document).ready(async function(){
           await fetchAndDisplay();
         });
         $("#fund_contract_button").click(async function(){
-          await connectMetamask();
           await fundContract();
         });
         $("#withdraw_funds").click(async function(){
-          await connectMetamask();
           await withdrawFunds();
         });
         $("#withdraw_all_funds").click(async function(){
-          await connectMetamask();
           await withdrawAll();
         });
 
@@ -81,7 +77,7 @@ $(document).ready(async function(){
         var config = {
             value: web3.utils.toWei(bet,"ether")
         }
-        await contractInstance.methods.flipCoin().send(config)
+        await contractInstance.methods.flipCoin().send(config, {from : await connectMetamask()})
         .on("transactionHash", function(hash){
             console.log(hash);
         })
@@ -103,7 +99,7 @@ $(document).ready(async function(){
 
       async function fetchAndDisplay(){
           await contractInstance.methods.getBalance().call().then(function(res){
-            $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[1], "ether") + "Ether");
+            $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[0], "ether") + "Ether");
 
           })
       };
@@ -114,7 +110,7 @@ $(document).ready(async function(){
         var config = {
           value : web3.utils.toWei(fund, "ether")
         }
-        await contractInstance.methods.fundContract().send(config)
+        await contractInstance.methods.fundContract().send(config, {from : await connectMetamask()})
         .on("transactionHash", function(hash){
           console.log(hash);
         })
@@ -123,16 +119,18 @@ $(document).ready(async function(){
         })
         .on("receipt", function(receipt){
           console.log(receipt);
-          
-        })
+        });
+        await contractInstance.methods.getBalance().call().then(function(res){
+          $("#jackpot_output").text("The Contract has : " + web3.utils.fromWei(res[0], "ether") + "Ether");
+        });
       };
 
 
       async function withdrawFunds(){
-        await contractInstance.methods.withdrawFunds().send();
+        await contractInstance.methods.withdrawFunds().send({from : await connectMetamask()});
       };
 
       async function withdrawAll(){
-        await contractInstance.methods.withdrawAll().send();
+        await contractInstance.methods.withdrawAll().send({from : await connectMetamask()});
       };
 
