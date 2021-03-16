@@ -123,8 +123,9 @@ contract Coinflip is usingProvable{
 
     // withdraw all funds possible only though contractOwner address;
     function withdrawAll() internal onlyOwner {
-        require(playersByAddress[msg.sender].playerBalance > 0);
-        uint amt = playersByAddress[msg.sender].playerBalance;
+
+        uint amt = contractBalance;
+        contractBalance = 0;
         delete(playersByAddress[msg.sender]);
         msg.sender.transfer(amt);
         emit BalanceUpdated(msg.sender, amt, contractBalance);
@@ -134,7 +135,7 @@ contract Coinflip is usingProvable{
 
     //Withdraw Funds Deposited/ Won from the contract (possible for all Players of the bettingDapp Game)
     function withdrawFunds() public {
-      require(msg.sender != contractOwner, "You are Contract Owner, use withdrawAll function");
+      require(msg.sender != address(0));
       require(playersByAddress[msg.sender].playerBalance > 0);
       require(!_isPlaying(msg.sender));
 
