@@ -1,6 +1,8 @@
+pragma solidity 0.5.12;
+
 import "./provableAPI.sol";
 import { SafeMath } from "./SafeMath.sol";
-pragma solidity 0.5.12;
+
 
 contract Coinflip is usingProvable{
 
@@ -10,7 +12,6 @@ contract Coinflip is usingProvable{
   event RandomNumberGenerated(uint randomNumber);
   event LogNewProvableQuery(address indexed player);
   event FlipResult(address indexed player, uint amountWon, bool won);
-  event ContractFunded(address contractOwner, uint amount);
   event BalanceUpdated(address user, uint transferredAmt, uint newContractBalance);
 
 
@@ -26,11 +27,6 @@ contract Coinflip is usingProvable{
       _;
   }
 
-  modifier costs(uint cost) {
-      require(msg.value >= cost, "Minimum amount >= 0.01 ether");
-      _;
-
-  }
 
   //addresses and other such state Variables:
   address public contractOwner;
@@ -54,7 +50,7 @@ contract Coinflip is usingProvable{
     mapping(address => PlayerByAddress) public playersByAddress;
 
     //Flip the Coin and check whether user won or lost;
-    function flipCoin() public payable costs(0.01 ether) {
+    function flipCoin() public payable  {
         require(getBalance() >= msg.value, "The contract doesnt have enough balance to play right now. Come Back later");
         require(_isPlaying(msg.sender) == false, "The User currently is in Game");
 
@@ -126,7 +122,7 @@ contract Coinflip is usingProvable{
 
 
     // withdraw all funds possible only though contractOwner address;
-    function withdrawAll() internal onlyOwner returns(uint){
+    function withdrawAll() internal onlyOwner {
         require(playersByAddress[msg.sender].playerBalance > 0);
         uint amt = playersByAddress[msg.sender].playerBalance;
         delete(playersByAddress[msg.sender]);
@@ -151,17 +147,17 @@ contract Coinflip is usingProvable{
 
 
 
-    //Only possible for the Owner of the Contract
-    function fundContract() public payable onlyOwner returns(uint) {
 
+    function fundContract() public payable {
         require(msg.value != 0);
-        emit ContractFunded(msg.sender, msg.value);
-        return msg.value;
+        contractBalance = contractBalance.add(msg.value);
+        emit BalanceUpdated(msg.sender, msg.value, contractBalance);
+
     }
 
 
 
-    function _isPlaying(address _player) public view returns(bool){
+    function _isPlaying(address _player) internal view returns(bool){
        _player = msg.sender;
       return playersByAddress[_player].inGame;
     }
