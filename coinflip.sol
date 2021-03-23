@@ -51,7 +51,7 @@ contract Coinflip is usingProvable{
 
     //Flip the Coin and check whether user won or lost;
     function flipCoin() public payable  {
-        require(getBalance() >= msg.value, "The contract doesnt have enough balance to play right now. Come Back later");
+        require(msg.value <= getBalance() && msg.value > 0, "The contract doesnt have enough balance to play right now. Come Back later");
         require(_isPlaying(msg.sender) == false, "The User currently is in Game");
 
         playersByAddress[msg.sender].playerAddress = msg.sender;
@@ -126,7 +126,7 @@ contract Coinflip is usingProvable{
 
         uint amt = contractBalance;
         contractBalance = 0;
-        delete(playersByAddress[msg.sender]);
+        
         msg.sender.transfer(amt);
         emit BalanceUpdated(msg.sender, amt, contractBalance);
 
@@ -159,7 +159,8 @@ contract Coinflip is usingProvable{
 
 
     function _isPlaying(address _player) internal view returns(bool){
-       _player = msg.sender;
+      _player = msg.sender;
       return playersByAddress[_player].inGame;
     }
 }
+
